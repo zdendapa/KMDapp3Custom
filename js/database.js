@@ -20,7 +20,7 @@ var lastSyncDate;   // date of last sync
 
 var db = {
     settings: {
-        shortName: 'kmd_a',
+        shortName: 'kmd_b',
         version: '1.0',
         displayName: 'KMD app',
         maxSize: 655367 // in bytes
@@ -80,7 +80,7 @@ db.createTables = function()
             tx.executeSql('SELECT count(*) as c FROM sqlite_master WHERE type="table" AND name="meta"', [], function(tx, results) {
                 if(results.rows.item(0).c == 0)
                 {
-                    tx.executeSql('CREATE TABLE IF NOT EXISTS meta (openedSheet NUMBER, lastExport TEXT,lastSyncDate TEXT)');
+                    tx.executeSql('CREATE TABLE IF NOT EXISTS meta (openedSheet NUMBER, lastExport TEXT,lastSyncDate TEXT, FSsummary TEXT)');
 
                     database.transaction(function(tx)
                     {
@@ -495,7 +495,8 @@ db.importSheets = function(xml,success_callback)
                 var category = sheet.getElementsByTagName("category");
                 //console.log(category[0].firstChild.nodeValue);
                 //tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+sheet.getElementsByTagName("category")[0].firstChild.nodeValue+','+Encoder.htmlDecode(sheet.getElementsByTagName("code")[0].firstChild.nodeValue)+', '+sheet.getElementsByTagName("planSpend")[0].firstChild.nodeValue+')');
-                tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+getXmlNodeValue(sheet,"category")+','+getXmlNodeValue(sheet,"code")+', '+getXmlNodeValue(sheet,"planSpend")+')');
+                //tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+getXmlNodeValue(sheet,"category")+','+getXmlNodeValue(sheet,"code")+', '+getXmlNodeValue(sheet,"planSpend")+')');
+                tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES (?,?,?,?)', [sheet.getElementsByTagName("shid")[0].firstChild.nodeValue,getXmlNodeValue(sheet,"category"),getXmlNodeValue(sheet,"code"),getXmlNodeValue(sheet,"planSpend")]);
                   console.log('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+getXmlNodeValue(sheet,"category")+','+getXmlNodeValue(sheet,"code")+', '+getXmlNodeValue(sheet,"planSpend")+')');
 
                 var rows =  sheet.getElementsByTagName("row");
@@ -503,7 +504,8 @@ db.importSheets = function(xml,success_callback)
                 for (var j = 0; j < rows.length; j++) {
                     var row = rows[j];
 
-                    tx.executeSql('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES ('+getXmlNodeValue(sheet,"shid")+','+getXmlNodeValue(row,"rowID")+', '+getXmlNodeValue(row,"date")+', '+getXmlNodeValue(row,"paid")+', '+getXmlNodeValue(row,"desc")+', '+getXmlNodeValue(row,"ref")+', '+getXmlNodeValue(row,"payment")+', '+getXmlNodeValue(row,"available")+')');
+                    //tx.executeSql('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES ('+getXmlNodeValue(sheet,"shid")+','+getXmlNodeValue(row,"rowID")+', '+getXmlNodeValue(row,"date")+', '+getXmlNodeValue(row,"paid")+', '+getXmlNodeValue(row,"desc")+', '+getXmlNodeValue(row,"ref")+', '+getXmlNodeValue(row,"payment")+', '+getXmlNodeValue(row,"available")+')');
+                    tx.executeSql('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES (?,?,?,?,?,?,?,?)', [getXmlNodeValue(sheet,"shid"),getXmlNodeValue(row,"rowID"),getXmlNodeValue(row,"date"),getXmlNodeValue(row,"paid"),getXmlNodeValue(row,"desc"),getXmlNodeValue(row,"ref"),getXmlNodeValue(row,"payment"),getXmlNodeValue(row,"available")]);
                     console.log('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES ('+getXmlNodeValue(sheet,"shid")+','+getXmlNodeValue(row,"rowID")+', '+getXmlNodeValue(row,"date")+', '+getXmlNodeValue(row,"paid")+', '+getXmlNodeValue(row,"desc")+', '+getXmlNodeValue(row,"ref")+', '+getXmlNodeValue(row,"payment")+', '+getXmlNodeValue(row,"available")+')');
 
                 }
@@ -521,9 +523,10 @@ db.importSheets = function(xml,success_callback)
 function getXmlNodeValue(obj,TagName)
 {
     if(obj.getElementsByTagName(TagName)[0].firstChild==null)
-    return '2';
+    return '""';
     else
-        return (IsNumeric(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue)?obj.getElementsByTagName(TagName)[0].firstChild.nodeValue:getQuoted(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue));
+        return (IsNumeric(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue)?obj.getElementsByTagName(TagName)[0].firstChild.nodeValue:obj.getElementsByTagName(TagName)[0].firstChild.nodeValue);
+        //return (IsNumeric(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue)?obj.getElementsByTagName(TagName)[0].firstChild.nodeValue:getQuoted(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue));
     //return (IsNumeric(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue)?obj.getElementsByTagName(TagName)[0].firstChild.nodeValue:'"'+obj.getElementsByTagName(TagName)[0].firstChild.nodeValue+'"');
 
 }
@@ -592,6 +595,36 @@ db.importCode = function(xml,success_callback)
     }, errorCB);
 };
 
+db.FSsummaryImport = function(xml,success_callback)
+{
+    database.transaction(function(tx) {
+
+        var FSsummaryTags = xml.getElementsByTagName("FSsummary");
+        if(FSsummaryTags.length>0)
+        {
+            var FSsummaryTag = FSsummaryTags[0];
+            var FSsummary = FSsummaryTag.firstChild.nodeValue;
+
+            logging("import FSsummary:"+FSsummary);
+
+            tx.executeSql("UPDATE meta SET FSsummary = ?",[FSsummary]);
+        }
+    }, errorCB);
+};
+
+db.FSsummaryGet = function(success_callback)
+{
+    database.transaction(function(tx) {
+        tx.executeSql('SELECT FSsummary FROM meta', [], function(tx, results) {
+            if(results.rows.length > 0)
+            {
+                dbData.FSsummary = results.rows.item(0).FSsummary;
+            }
+        }, errorCB);
+
+    }, errorCB,success_callback);
+};
+
 db.deleteShid = function(success_callback)
 {
     database.transaction(function(tx) {
@@ -651,7 +684,8 @@ db.pieDataGetCount = function(sh,shName,success_callback)
             if(success_callback) {
                 if(pieData.length>0)
                 {
-                    success_callback();
+                    //success_callback();
+                    db.FSsummaryGet(success_callback);
                 } else
                     alert("No data to show");
             }

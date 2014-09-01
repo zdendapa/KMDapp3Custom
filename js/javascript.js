@@ -114,8 +114,8 @@ function pieRender()
 
 
     var dimension = $(document).width()>$(document).height()?$(document).height():$(document).width();
-    $("#chartdiv").css("width",dimension/2 +"px");
-    $("#chartdiv").css("height",dimension/2 +"px");
+    $("#chartdiv").css("width",dimension/1.5 +"px");
+    $("#chartdiv").css("height",dimension/1.5 +"px");
 
 
     var s1 = [['Sony',7], ['Samsumg',13.3], ['LG',14.7], ['Vizio',5.2], ['Insignia', 1.2]];
@@ -155,11 +155,14 @@ function pieRender()
     var total = 0;
     for(var i=0;i<pieData.length;i++)
     {
-        htmladd += "<tr><td>"+pieData[i][0]+"</td><td>"+numDecimalCorrection(pieData[i][1],2)+"</td><tr>";
+        htmladd += "<tr><td>"+pieData[i][0]+"</td><td>"+numDecimalCorrection(pieData[i][1],2)+"</td></tr>";
         total += Number(pieData[i][1]);
     }
     htmladd += "<tr><td>Total:</td><td>"+numDecimalCorrection(total,2)+"</td><tr>";
-    $("#chartdivTable tbody").append(htmladd);
+    //htmladd += "<tr><td>Available to Spend:</td><td>"+numDecimalCorrection(Number(dbData.FSsummary) - total,2)+"</td></tr>";
+    $("#chartdivTable table.num tbody").append(htmladd);
+    $("#chartdivTable table.avialable tbody").append("<tr><td>Available to Spend:</td><td>"+numDecimalCorrection(Number(dbData.FSsummary) - total,2)+"</tbody></table>");
+
 
 
 
@@ -526,8 +529,10 @@ function addRow()
 
     $("ul.content").append('<li data-id="'+lastRowID+'"> <span class="dater"><input onchange="dateFormatCheck(this)" onfocus="dateFormatIn(this)"></span><span class="description"><input></span><span class="paid"><input><select>'+dbHowPaidOptionsHtml+'</select></span><span class="checkRef"><input></span> <span class="payment"><input></span> <span class="last"><input readonly></span> </li>');
 
-    //date picker (without dateFormatCheck()) dont work on Android
-    //$("ul.content").append('<li data-id="'+lastRowID+'"> <span class="dater"><input type="date" required="required"></span> <span  class="paid"><select>'+dbHowPaidOptionsHtml+'</select></span> <span class="description"><input></span> <span class="checkRef"><input></span> <span class="payment"><input onchange="priceFormatCheck(this)"></span> <span class="last"><input readonly></span> </li>');
+    // set how Paid input
+    var firstSelectOption = $("ul.content").find("select").last().find("option").first().text();
+
+    $("ul.content .paid input").last().val(firstSelectOption);
 }
 
 function updateHeader()
@@ -779,6 +784,10 @@ function enableMenuButton()
 
 function menuButton() {
     $("#log").toggle();
+    if($("#log").css("display")=="block")
+    {
+        $(elTextarea).scrollTop($(elTextarea)[0].scrollHeight);
+    }
 }
 
 // it works just for 2 decimals now

@@ -9,6 +9,9 @@ var dir = null;		// dir
 var xmlString = "";
 var manualySave = false;
 var fe;
+var dbData = {
+    FSsummary : ""
+};
 
 function fileInit()
 {
@@ -112,7 +115,7 @@ function metadataFileSave(m) {
     //workOn(dir,"write");
 }
 */
-var importExport = function ()
+var importExport = function()
 {
 
     if(testFileModifiedByExter=="")
@@ -126,7 +129,12 @@ var importExport = function ()
     if(lastExportDate==d_modificationDate || lastExportDate == "")
     {
         logging("Dates are same (or lastExportDate is empty), start to export data", 1);
-        generateXML("write");
+
+        dataFromDBget(function(){
+            generateXML("write");
+        });
+
+
         //workOn(dir,"read");
 
     }else
@@ -210,6 +218,7 @@ function readFile(fileEntry)
 
             db.importSheets(xml);
             db.importHowPaid(xml);
+            db.FSsummaryImport(xml);
 
 
         };
@@ -275,16 +284,22 @@ function gotFileWriter(writer) {
     };
 }
 
+function dataFromDBget(success_callback)
+{
+    db.FSsummaryGet(success_callback);
+}
+
 function generateXML(writeIt)
 {
     database.transaction(function(tx)
     {
         tx.executeSql('select * from sheetsdata JOIN sheetsheaders ON sheetsdata.shid=sheetsheaders.shid ORDER BY shid', [], function(tx, results)
         {
+            xmlString = "<data>";
             len = results.rows.length;
             if(len==0)
             {
-                xmlString = "no data in db";
+                xmlString += "no data in db";
             }
             else
             {
@@ -351,9 +366,11 @@ function generateXML(writeIt)
              */
 
 
-                xmlString = "<data>";
+
 
                 xmlString += "<meta>";
+
+                xmlString += "<FSsummary>"+dbData.FSsummary+"</FSsummary>";
 
                 // ---------------------------- category drop-down list
                     xmlString += "<category>";
@@ -421,10 +438,11 @@ function generateXML(writeIt)
                     xmlString += "<payment>"+results.rows.item(i).payment+"</payment><available>"+results.rows.item(i).balance+"</available>";
                     xmlString += "</row>";
                 }
-                xmlString += "</tableData></sheet></data>";
+                xmlString += "</tableData></sheet>";
 
             }
 
+            xmlString += "</data>";
             if(writeIt=="write") workOn(dir,"write");
 
         }, errorCB);

@@ -222,20 +222,20 @@ li {
     padding-right: 0.5em;
 }
 .paid select {
-    width: 3px !important;
+    width: 1em !important;
     height: 1em;
     position: absolute;
-    top: 4px;
+    top: 0.5em;
     right: 0px;
     -webkit-appearance: none;
     border-color: transparent;
     border-radius: 0px;
-    background: white;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 6px solid red;
-
+    background: url(../img/rowDown.png) no-repeat center;
+    background-size: 1em 1em;
+    text-indent: 100%;
 }
+
+
 .old {
     border-left: 6px solid transparent;
     border-right: 5px solid transparent;
@@ -527,6 +527,12 @@ div.instructions {
 #chartdivTable table, #chartdivTable th, #chartdivTable td {
     border: 1px solid black;
     margin-bottom: 10px;
+}
+#chartdivTable td:first-child {
+    width: 70%;
+}
+#chartdivTable table.avialable {
+    margin-bottom: 20px;
 }
 
 #log {
