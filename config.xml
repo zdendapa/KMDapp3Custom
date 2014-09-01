@@ -3,36 +3,10 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "cz.initedsolutions.kmdPocketCompanion"
-        version   = "1.4">
+        id        = "cz.initedsolutions.kmd"
+        version   = "0.1">
     <!--
-        b   - balance recauculate update db
-        1.1   - phonegap 3.5
-            instructions input no-editable
-            config EnableViewportScale disabled (zooom doesnt work :()
-            datePickerOpen workaround to be opened only once
-            Payable To dropdown bigger on 1051px
-            pie chart no data alert added
-            pie total added
-            pie better responsive
-            zoom plugin added
-        1.2
-        - datepicker, year added
-        - label Code change to Category
-        - pie chart diemnsion changed
-        1.3
-        - meta viewport set old one
-        - starts screen disable set min-height of body
-        - logged last sync days
-        - console set up ready on menu
-        - on focus erase input fields amount and plan to spend
-        1.4
-        - bug on iOS (white screen) fixed
 
-        both version!
-        - prepare for more version (added defaulthtmlcodes...
-        - howPaid control input+select
-        - how paid changable then, update db table howPaid
 
     -->
 
@@ -40,7 +14,7 @@
 
     <name>i-Count</name>
 
-    <description>Pocket Companion</description>
+    <description>iCount Companion for TMM</description>
 
     <author href="http://inited.cz" email="info@inited.cz">INITED Solutions s.r.o.</author>
 
