@@ -20,7 +20,7 @@ var lastSyncDate;   // date of last sync
 
 var db = {
     settings: {
-        shortName: 'kmd_b',
+        shortName: 'kmd_c',
         version: '1.0',
         displayName: 'KMD app',
         maxSize: 655367 // in bytes
@@ -116,6 +116,7 @@ db.initSheetsData = function()
 
                 $("div.instruction").append("<div class='checkboxes'>");
 
+                $("#code").empty();
                 for (var i=0; i<len; i++){
                     $("#code").append($("<option></option>").attr("value", results.rows.item(i).code).text(results.rows.item(i).code));
                     $(".instructions div.pickUp").append('<input type="checkbox" value="'+results.rows.item(i).code+'"><span>'+results.rows.item(i).code+'</span><br>');
@@ -523,7 +524,7 @@ db.importSheets = function(xml,success_callback)
 function getXmlNodeValue(obj,TagName)
 {
     if(obj.getElementsByTagName(TagName)[0].firstChild==null)
-    return '""';
+    return '';
     else
         return (IsNumeric(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue)?obj.getElementsByTagName(TagName)[0].firstChild.nodeValue:obj.getElementsByTagName(TagName)[0].firstChild.nodeValue);
         //return (IsNumeric(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue)?obj.getElementsByTagName(TagName)[0].firstChild.nodeValue:getQuoted(obj.getElementsByTagName(TagName)[0].firstChild.nodeValue));
@@ -599,6 +600,7 @@ db.FSsummaryImport = function(xml,success_callback)
 {
     database.transaction(function(tx) {
 
+        /*
         var FSsummaryTags = xml.getElementsByTagName("FSsummary");
         if(FSsummaryTags.length>0)
         {
@@ -609,6 +611,9 @@ db.FSsummaryImport = function(xml,success_callback)
 
             tx.executeSql("UPDATE meta SET FSsummary = ?",[FSsummary]);
         }
+*/
+        var FSsummary = getXmlNodeValue(xml,"FSsummary");
+        tx.executeSql("UPDATE meta SET FSsummary = ?",[FSsummary]);
     }, errorCB);
 };
 

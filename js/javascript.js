@@ -40,7 +40,7 @@ if(appType=="simple")
 if(appType=="tmm")
 {
     defaultCodeOptionsHtml = "<option>3001 Primary Wage Earner #1</option><option>3002 Primary Wage Earner #2</option><option>3003 Investment Income</option><option>3004 Other (Source)</option><option>3005 Reserve Transfers</option><option>4006 Auto Expenses</option><option>4007 Food/Sundries</option><option>4008 Home Maintenance</option><option>4009 Insurance</option><option>4010 Medical</option><option>4011 Housing</option><option>4012 Telephone</option><option>4013 Utilities</option><option>4014 Open</option><option>4015 Open</option><option>4016 Unidentified Cash w/d</option><option>4017 Open</option><option>4018 Open</option><option>4019 Open</option><option>4020 Open</option><option>4021 Open</option><option>4517 Child#1-A</option><option>4517 Child#2-B</option><option>4517 Child#3-C</option><option>4517 Child#4-D</option><option>4517 Child#5-E</option><option>4518 for Primary Wage Earner #1</option><option>4519 for Primary Wage Earner #2</option><option>4520 Pet #1-A</option><option>4520 Pet #2-B</option><option>4521 Open</option><option>5023 Medical Debt / Fees / Charges</option><option>5024 Loans & Notes Payable</option><option>5025 Tax Debt / Estimated Tax</option><option>5026 Open</option><option>6028 Donations/Gifts</option><option>6029 Entertainment</option><option>6032 Savings</option><option>6033 Vacations</option>";
-    defaultHowPaidOptionsHtml = "<option>BK#0001</option><option>BK#0002</option><option>BK#0003</option><option>BK#0004</option><option>BK#0005</option><option>BK#0006</option><option>BK#0007</option><option>BK#0008</option><option>BK#0009</option><option>BK#0010</option><option>BK#9999</option><option>CC#0001</option><option>CC#0002</option><option>CC#0003</option><option>CC#0004</option><option>CC#0005</option><option>CC#0006</option><option>CC#0007</option><option>CC#0008</option><option>CC#0009</option><option>CC#9999</option><option>LOC#001</option><option>LOC#002</option><option>LOC#003</option>";
+    defaultHowPaidOptionsHtml = "<option>CASH</option><option>BK#0001</option><option>BK#0002</option><option>BK#0003</option><option>BK#0004</option><option>BK#0005</option><option>BK#0006</option><option>BK#0007</option><option>BK#0008</option><option>BK#0009</option><option>BK#0010</option><option>BK#9999</option><option>CC#0001</option><option>CC#0002</option><option>CC#0003</option><option>CC#0004</option><option>CC#0005</option><option>CC#0006</option><option>CC#0007</option><option>CC#0008</option><option>CC#0009</option><option>CC#9999</option><option>LOC#001</option><option>LOC#002</option><option>LOC#003</option>";
 }
 
 
@@ -474,11 +474,19 @@ function howPaidCheck(el)
     // check if you edit last 4digits (if 3 from start are same)
     // compare it with selected value
 
-    var inputPrefix = el.value.substr(0,3);
-    var selectPrefix = $(el).next().val().toString().substr(0,3);
+    var inputPrefix = el.value.substr(0,el.value.indexOf("#"));
+    var selectPrefix = $(el).next().val().toString().substr(0,$(el).next().val().toString().indexOf("#"));
+
+    if($(el).next().val().toString() == "CASH")
+    {
+        alert("CASH canot be edited")
+        el.value = "CASH";
+        return;
+    }
+
     if(inputPrefix!=selectPrefix)
     {
-        alert("First 3digits canot be changed");
+        alert("Prefix canot be changed");
         el.value = $(el).next().val();
     } else
     {

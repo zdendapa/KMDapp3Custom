@@ -4,11 +4,16 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "cz.initedsolutions.kmd"
-        version   = "0.2">
+        version   = "0.3">
     <!--
     0.2
     - import updated
     - pie chart updated - available table
+    0.3
+    - howPaid row position improved
+    - howPaid editing improved (prefix can has different number of chars. You can edit only chars after symbol "#")
+    - option CASH added
+    - importXML improved and tested
 
     -->
 

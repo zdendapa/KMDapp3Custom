@@ -201,7 +201,7 @@ function readFile(fileEntry)
 
             // ---- read code drop-down list
 
-            db.importCode(xml);
+
             /*
             var options = xml.getElementsByTagName("option");
             if(options.length>2)
@@ -215,7 +215,7 @@ function readFile(fileEntry)
             */
 
             // ---- end read category drop-down list
-
+            db.importCode(xml);
             db.importSheets(xml);
             db.importHowPaid(xml);
             db.FSsummaryImport(xml);
