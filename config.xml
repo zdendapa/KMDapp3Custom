@@ -3,8 +3,8 @@
 <!-- config.xml reference: https://build.phonegap.com/docs/config-xml -->
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
-        id        = "cz.initedsolutions.kmd"
-        version   = "0.3">
+        id        = "cz.initedsolutions.kmdTMM"
+        version   = "0.4">
     <!--
     0.2
     - import updated
@@ -14,12 +14,20 @@
     - howPaid editing improved (prefix can has different number of chars. You can edit only chars after symbol "#")
     - option CASH added
     - importXML improved and tested
+    0.4
+    - splash screen fixed
+    - renamed name of app to i-Count for TMM
+    - negative Payment Amount allowed
+    - How Paid limit to 7digits
+    - problem with xml. Please check date of created xml. On my android I must refresh few times connection to see last file. If problems remain, please send me xml file
+    - monthly amouts is for every code?! I programed it globaly and its data/meta/FSsummary
+    - after Check Ref fill it dowsnt hop to next cell
 
     -->
 
     <preference name="phonegap-version"/>
 
-    <name>i-Count</name>
+    <name>i-Count for TMM</name>
 
     <description>iCount Companion for TMM</description>
 

@@ -110,7 +110,7 @@ function pieRender()
     $("div.sheets").css("display","none");
     $("div.topMenu").css("display","none");
     $("div.piePage").css("display","block");
-    $(".piePage h1").html($("#code option:selected").text() + " summary");
+    $(".piePage h1").html($("#code option:selected").text() + " summary " + dbData.FSsummary);
 
 
     var dimension = $(document).width()>$(document).height()?$(document).height():$(document).width();
@@ -249,8 +249,13 @@ function clickInit()
     $(document).on('focus', '#planSpend, .content .payment input', function() {
         this.value='';
     });
-    $(document).on('focusout', '#planSpend, .content .payment input', function() {
-        priceFormatCheck(this);
+    $(document).on('focusout', '#planSpend', function() {
+        var mustBePositive = true;
+        priceFormatCheck(this,mustBePositive);
+    });
+    $(document).on('focusout', '.content .payment input', function() {
+        var mustBePositive = false;
+        priceFormatCheck(this,mustBePositive);
     });
 
     // read date of sync from db.
@@ -268,7 +273,7 @@ function clickInit()
     });
 
 
-    // focus next field in table
+    // focus next field in table enter key
     $(document).on("keypress",".content input, #planSpend",function(e) {
         if (e.which == 13) {
 
@@ -278,7 +283,7 @@ function clickInit()
                 return;
             }
 
-            if($(this).closest('span').hasClass("payment"))
+            if($(this).closest('span').hasClass("payment") || $(this).closest('span').hasClass("checkRef"))
             {
                 this.blur();
             } else if($(this).closest('span').hasClass("description"))
@@ -365,6 +370,8 @@ function recalculateBalance()
     var underValue = false;
     $(".content li").each(function(){
         var payment = $(this).find(".payment input").val();
+
+        /* negative number allowed
         if(payment > 0)
         {
 
@@ -373,6 +380,7 @@ function recalculateBalance()
             $(this).find(".payment input").val("0.00");
             payment = 0;
         }
+        */
         total = parseFloat(Math.round((total-payment) * 100) / 100).toFixed(2);
         var aviableAmountEl = $(this).find(".last input");
         $(aviableAmountEl).val(total);
@@ -393,7 +401,7 @@ function recalculateBalance()
 
 }
 
-function priceFormatCheck(el)
+function priceFormatCheck(el,mustBePositive)
 {
     value = el.value;
     var proceedUpdate = true;
@@ -403,19 +411,34 @@ function priceFormatCheck(el)
         $(el).val("0.00");
         proceedUpdate = false;
     } else
-    // is it positive number?
-    if(isNaN(Number(value)) || Number(value)<0)
+    if(mustBePositive)
     {
-        alert("This value must be positive real number");
-        //$("#planSpend").val("0");
-        $(el).val("0.00");
-        proceedUpdate = false;
+        // planToSpend
+        if(isNaN(Number(value)) || Number(value)<0)
+        {
+            alert("This value must be positive real number");
+            //$("#planSpend").val("0");
+            $(el).val("0.00");
+            proceedUpdate = false;
+        }
+    } else
+    {
+        // payment amount...
+        if(isNaN(Number(value)))
+        {
+            alert("This value must be a real number");
+            //$("#planSpend").val("0");
+            $(el).val("0.00");
+            proceedUpdate = false;
+        }
     }
+
 
     // has this number ".00" ?
     var elSlinc = value.split(".");
     if(elSlinc.length == 1 && proceedUpdate)
     {
+
         value = value + ".00";
         el.value = value;
     }
@@ -489,13 +512,19 @@ function howPaidCheck(el)
         alert("Prefix canot be changed");
         el.value = $(el).next().val();
     } else
+    if(el.value.length > 7)
+    {
+        alert("Code canot be larged");
+        el.value = $(el).next().val();
+    } else
     {
         // update input value in db
         dbUpdater2(el);
 
         // update all select in sheet
         //$(el).next().find("option:selected").text(el.value);
-        $(".paid select").find("option[value="+$(el).next().val()+"]").text(el.value);
+        //$(".paid select").find("option[value="+$(el).next().val()+"]").text(el.value);
+        $(".paid select option:selected").text(el.value);
         db.howPaidUpdate();
 
     }
@@ -727,11 +756,18 @@ function lastSyncOK()
         }
         if(diffDays>45)
         {
-            alert('This app stops after 45 days. You cannot make any further changes. Please answer some questions about how the app worked for you.');
-            setTimeout(function(){
-                //http://community.phonegap.com/nitobi/topics/open_external_links_in_system_browser_phonegap_build_3_1_iphone_android_windows
-                window.open("http://www.kmdfinancial.com/SA/SimpleAppFeedback.htm", '_system', 'location=no')
-            }, 300)
+            if(appType=="simple")
+            {
+                alert('This app stops after 45 days. You cannot make any further changes. Please answer some questions about how the app worked for you.');
+                setTimeout(function(){
+                    //http://community.phonegap.com/nitobi/topics/open_external_links_in_system_browser_phonegap_build_3_1_iphone_android_windows
+                    window.open("http://www.kmdfinancial.com/SA/SimpleAppFeedback.htm", '_system', 'location=no')
+                }, 300);
+            } else
+            {
+                alert('This app stops after 30 days. You cannot make any further changes');
+            }
+
             state = false;
         }
     }

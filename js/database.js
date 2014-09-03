@@ -20,7 +20,7 @@ var lastSyncDate;   // date of last sync
 
 var db = {
     settings: {
-        shortName: 'kmd_c',
+        shortName: 'kmd_d',
         version: '1.0',
         displayName: 'KMD app',
         maxSize: 655367 // in bytes
@@ -621,9 +621,10 @@ db.FSsummaryGet = function(success_callback)
 {
     database.transaction(function(tx) {
         tx.executeSql('SELECT FSsummary FROM meta', [], function(tx, results) {
+            dbData.FSsummary = 0;
             if(results.rows.length > 0)
             {
-                dbData.FSsummary = results.rows.item(0).FSsummary;
+                dbData.FSsummary = results.rows.item(0).FSsummary==null?"0":results.rows.item(0).FSsummary;
             }
         }, errorCB);
 
