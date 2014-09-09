@@ -4,7 +4,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "cz.initedsolutions.kmdTMM"
-        version   = "0.4">
+        version   = "0.5">
     <!--
     0.2
     - import updated
@@ -22,6 +22,11 @@
     - problem with xml. Please check date of created xml. On my android I must refresh few times connection to see last file. If problems remain, please send me xml file
     - monthly amouts is for every code?! I programed it globaly and its data/meta/FSsummary
     - after Check Ref fill it dowsnt hop to next cell
+    0.5
+    - importable lastSyncSdate
+    - how paid reprogramed, storing and exporting index of select instead of string value
+    - code added attribute value for pie chart
+    - added readonly parameter. "x" meand readonly
 
     -->
 

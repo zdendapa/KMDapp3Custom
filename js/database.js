@@ -20,7 +20,7 @@ var lastSyncDate;   // date of last sync
 
 var db = {
     settings: {
-        shortName: 'kmd_d',
+        shortName: 'kmd_e',
         version: '1.0',
         displayName: 'KMD app',
         maxSize: 655367 // in bytes
@@ -71,8 +71,8 @@ db.createTables = function()
 
 
         tx.executeSql('CREATE TABLE IF NOT EXISTS sheetsheaders (shid NUMBER,category, code, planSpend TEXT)');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS sheetsdata (shid NUMBER, rowid NUMBER, dater, paid, desc, checkRef, payment TEXT, balance TEXT)');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS code (code TEXT)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sheetsdata (shid NUMBER, rowid NUMBER, dater, paid, desc, checkRef, payment TEXT, balance TEXT, synced TEXT)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS code (code TEXT, value TEXT)');
         tx.executeSql('CREATE TABLE IF NOT EXISTS howPaid (howPaid TEXT)');
 
 
@@ -108,7 +108,7 @@ db.initSheetsData = function()
     database.transaction(function(tx)
     {
         //fill up code drop-down
-        tx.executeSql('SELECT code FROM code', [], function(tx, results)
+        tx.executeSql('SELECT code,value FROM code', [], function(tx, results)
         {
             len = results.rows.length;
             if(len>0)
@@ -118,7 +118,7 @@ db.initSheetsData = function()
 
                 $("#code").empty();
                 for (var i=0; i<len; i++){
-                    $("#code").append($("<option></option>").attr("value", results.rows.item(i).code).text(results.rows.item(i).code));
+                    $("#code").append($("<option></option>").attr("value", results.rows.item(i).value).text(results.rows.item(i).code));
                     $(".instructions div.pickUp").append('<input type="checkbox" value="'+results.rows.item(i).code+'"><span>'+results.rows.item(i).code+'</span><br>');
                 }
 
@@ -252,7 +252,8 @@ function dbUpdateOrInsert(tx,type) {
     var rowID = $(el).attr("data-id");
     var dater = $(el).find(".dater input").val();
     //var paid = $(el).find(".paid select").val();
-    var paid = $(el).find(".paid input").val();
+    //var paid = $(el).find(".paid input").val();
+    var paid = $(el).find(".paid select")[0].selectedIndex;
     var desc = $(el).find(".description input").val();
     var checkRef = $(el).find(".checkRef input").val();
     var payment = $(el).find(".payment input").val();
@@ -308,14 +309,46 @@ db.loadSheet = function()
                 //console.log("tabledata table: " + len + " rows found.");
                 $("ul.content").empty();
                 lastRowID = 0;
+                var defaultHowPaidOptionsArray = defaultHowPaidOptionsHtml.replace(/<option>/g,"").split("</option>");
+
                 for (var i=0; i<len; i++){
+
+                    // change paid index to paid text
+                    if(isNaN(results.rows.item(i).paid))
+                    {
+                        var paid = results.rows.item(i).paid;
+                    } else
+                    {
+                        var paid = defaultHowPaidOptionsArray[results.rows.item(i).paid];
+                    }
+
+                    var readonly = "";
+                    var disabled = "";
+                    var classAdd = "";
+                    if(results.rows.item(i).synced=="x")
+                    {
+                        readonly = "readonly";
+                        disabled = "disabled";
+                        classAdd = "colorDisabled";
+                    }
                     //console.log("Row = " + i + " ID = " + results.rows.item(i).id + " Data =  " + results.rows.item(i).payment);
-                    $("ul.content").append('<li data-id="'+results.rows.item(i).rowid+'"><span class="dater"><input onchange="dateFormatCheck(this)" onfocus="dateFormatIn(this)" value="'+results.rows.item(i).dater+'"></span><span class="description"><input  value="'+ xmlSpecCharEn2(results.rows.item(i).desc)+'" onchange="addRowCheck(this)"></span><span class="paid"><input value="'+results.rows.item(i).paid+'"><select>'+dbHowPaidOptionsHtml+'</select></span><span class="checkRef"><input value="'+results.rows.item(i).checkRef+'"></span> <span class="payment"><input value="'+results.rows.item(i).payment+'"></span> <span class="last"><input style="color:'+(results.rows.item(i).balance>=0?String("black"):String("red"))+'"  value="'+results.rows.item(i).balance+'" readonly></span> </li>');
+                    $("ul.content").append('<li data-id="'+results.rows.item(i).rowid+'"><span class="dater '+classAdd+'"><input '+readonly+' onchange="dateFormatCheck(this)" onfocus="dateFormatIn(this)" value="'+results.rows.item(i).dater+'"></span><span class="description '+classAdd+'"><input '+readonly+' value="'+ xmlSpecCharEn2(results.rows.item(i).desc)+'" onchange="addRowCheck(this)"></span><span class="paid '+classAdd+'"><input '+readonly+' value="'+paid+'"><select '+disabled+'>'+defaultHowPaidOptionsHtml+'</select></span><span class="checkRef '+classAdd+'"><input '+readonly+' value="'+results.rows.item(i).checkRef+'"></span> <span class="payment '+classAdd+'"><input '+readonly+' value="'+results.rows.item(i).payment+'"></span> <span class="last '+classAdd+'"><input style="color:'+(results.rows.item(i).balance>=0?String("black"):String("red"))+'"  value="'+results.rows.item(i).balance+'" readonly></span> </li>');
+
                     // select right option on the select
-                    $("ul.content").find("li[data-id='"+results.rows.item(i).rowid+"']").find("select").val(results.rows.item(i).paid);
-                    //value="'+results.rows.item(i).paid+'"
+
+
+                    if(isNaN(results.rows.item(i).paid))
+                    {
+                        $("ul.content").find("li[data-id='"+results.rows.item(i).rowid+"']").find("select").val(paid);
+                    } else
+                    {
+                        $("ul.content").find("li[data-id='"+results.rows.item(i).rowid+"']").find("select").find("option").eq(results.rows.item(i).paid).prop('selected', true);
+                    }
+
                     lastRowID = i + 1;
                 }
+
+
                 addRow();
             }
             , errorCB);
@@ -445,9 +478,9 @@ db.howPaidRead = function(xml,success_callback)
         len = results.rows.length;
         if(len>0)
         {
-            dbHowPaidOptionsHtml = "";
+            defaultHowPaidOptionsHtml = "";
             for (var i=0; i<len; i++){
-                dbHowPaidOptionsHtml += "<option>" + results.rows.item(i).howPaid + "</option>";
+                defaultHowPaidOptionsHtml += "<option>" + results.rows.item(i).howPaid + "</option>";
             }
         }
 
@@ -465,8 +498,10 @@ db.howPaidUpdate = function(xml,success_callback)
 
         for(var i=0;i<$(".paid select").first().find("option").length;i++)
         {
+            // update database
             var optVal = $(".paid select").first().find("option").eq(i).text();
             tx.executeSql('INSERT INTO howPaid (howPaid) VALUES (?)',[optVal]);
+
         }
 
         //tx.executeSql('INSERT INTO howPaid (howPaid) VALUES (?)',[]);
@@ -481,12 +516,13 @@ db.importSheets = function(xml,success_callback)
 
     database.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS sheetsdata');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS sheetsdata (shid NUMBER, rowid NUMBER, dater, paid, desc, checkRef, payment TEXT, balance TEXT)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sheetsdata (shid NUMBER, rowid NUMBER, dater, paid, desc, checkRef, payment TEXT, balance TEXT, synced TEXT)');
 
         tx.executeSql('DROP TABLE IF EXISTS sheetsheaders');
         tx.executeSql('CREATE TABLE IF NOT EXISTS sheetsheaders (shid NUMBER,category, code, planSpend TEXT)');
 
         var sheets = xml.getElementsByTagName("sheet");
+
         if(sheets.length>0)
         {
             for (var i = 0; i < sheets.length; i++) {
@@ -506,8 +542,8 @@ db.importSheets = function(xml,success_callback)
                     var row = rows[j];
 
                     //tx.executeSql('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES ('+getXmlNodeValue(sheet,"shid")+','+getXmlNodeValue(row,"rowID")+', '+getXmlNodeValue(row,"date")+', '+getXmlNodeValue(row,"paid")+', '+getXmlNodeValue(row,"desc")+', '+getXmlNodeValue(row,"ref")+', '+getXmlNodeValue(row,"payment")+', '+getXmlNodeValue(row,"available")+')');
-                    tx.executeSql('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES (?,?,?,?,?,?,?,?)', [getXmlNodeValue(sheet,"shid"),getXmlNodeValue(row,"rowID"),getXmlNodeValue(row,"date"),getXmlNodeValue(row,"paid"),getXmlNodeValue(row,"desc"),getXmlNodeValue(row,"ref"),getXmlNodeValue(row,"payment"),getXmlNodeValue(row,"available")]);
-                    console.log('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES ('+getXmlNodeValue(sheet,"shid")+','+getXmlNodeValue(row,"rowID")+', '+getXmlNodeValue(row,"date")+', '+getXmlNodeValue(row,"paid")+', '+getXmlNodeValue(row,"desc")+', '+getXmlNodeValue(row,"ref")+', '+getXmlNodeValue(row,"payment")+', '+getXmlNodeValue(row,"available")+')');
+                    tx.executeSql('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance, synced) VALUES (?,?,?,?,?,?,?,?,?)', [getXmlNodeValue(sheet,"shid"),getXmlNodeValue(row,"rowID"),getXmlNodeValue(row,"date"),getXmlNodeValue(row,"paid"),getXmlNodeValue(row,"desc"),getXmlNodeValue(row,"ref"),getXmlNodeValue(row,"payment"),getXmlNodeValue(row,"available"),getXmlNodeValue(row,"synced")]);
+                    //console.log('INSERT INTO sheetsdata (shid, rowid, dater, paid, desc, checkRef, payment, balance) VALUES ('+getXmlNodeValue(sheet,"shid")+','+getXmlNodeValue(row,"rowID")+', '+getXmlNodeValue(row,"date")+', '+getXmlNodeValue(row,"paid")+', '+getXmlNodeValue(row,"desc")+', '+getXmlNodeValue(row,"ref")+', '+getXmlNodeValue(row,"payment")+', '+getXmlNodeValue(row,"available")+')');
 
                 }
             }
@@ -523,6 +559,8 @@ db.importSheets = function(xml,success_callback)
 
 function getXmlNodeValue(obj,TagName)
 {
+    if(obj.getElementsByTagName(TagName)[0]== undefined)
+    return '';
     if(obj.getElementsByTagName(TagName)[0].firstChild==null)
     return '';
     else
@@ -573,9 +611,10 @@ db.importHowPaid = function(xml,success_callback)
 
 db.importCode = function(xml,success_callback)
 {
+
     database.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS code');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS code (code TEXT)');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS code (code TEXT, value TEXT)');
 
 
         var codeTags = xml.getElementsByTagName("code");
@@ -585,46 +624,49 @@ db.importCode = function(xml,success_callback)
             var codeTag = codeTags[0];
             var codeOptions = codeTag.getElementsByTagName("option");
 
-            console.log("codeOptions.length"+codeOptions.length);
+            //console.log("codeOptions.length"+codeOptions.length);
+
 
             for (var i = 0; i < codeOptions.length; i++) {
+
+
                 var option = codeOptions[i];
-                console.log('INSERT INTO code (code) VALUES ("'+option.firstChild.nodeValue+'")');
-                tx.executeSql("INSERT INTO code (code) VALUES ('"+option.firstChild.nodeValue+"')");
+
+                console.log("opt:" + option.attributes[0].nodeValue);
+                //var str = '<option value="'+option.attributes[0].nodeValue+'">'+option.firstChild.nodeValue+'</option>';
+                var str = option.firstChild.nodeValue;
+                var strVal = option.attributes[0].nodeValue;
+                tx.executeSql('INSERT INTO code (code, value) VALUES (?,?)', [str,strVal]);
             }
         }
     }, errorCB);
 };
 
-db.FSsummaryImport = function(xml,success_callback)
+db.importSyncDate = function(xml,success_callback)
 {
     database.transaction(function(tx) {
-
-        /*
-        var FSsummaryTags = xml.getElementsByTagName("FSsummary");
-        if(FSsummaryTags.length>0)
-        {
-            var FSsummaryTag = FSsummaryTags[0];
-            var FSsummary = FSsummaryTag.firstChild.nodeValue;
-
-            logging("import FSsummary:"+FSsummary);
-
-            tx.executeSql("UPDATE meta SET FSsummary = ?",[FSsummary]);
-        }
-*/
-        var FSsummary = getXmlNodeValue(xml,"FSsummary");
-        tx.executeSql("UPDATE meta SET FSsummary = ?",[FSsummary]);
+        var FSsummary = getXmlNodeValue(xml,"syncDate");
+        tx.executeSql("UPDATE meta SET syncDate = ?",[FSsummary]);
     }, errorCB);
 };
 
-db.FSsummaryGet = function(success_callback)
+db.importLastSyncDate = function(xml,success_callback)
 {
     database.transaction(function(tx) {
-        tx.executeSql('SELECT FSsummary FROM meta', [], function(tx, results) {
+        var lastSyncDate = getXmlNodeValue(xml,"lastSyncDate");
+        tx.executeSql("UPDATE meta SET lastSyncDate = ?",[lastSyncDate]);
+    }, errorCB);
+};
+
+db.metaGet = function(success_callback)
+{
+    database.transaction(function(tx) {
+        tx.executeSql('SELECT * FROM meta', [], function(tx, results) {
             dbData.FSsummary = 0;
             if(results.rows.length > 0)
             {
-                dbData.FSsummary = results.rows.item(0).FSsummary==null?"0":results.rows.item(0).FSsummary;
+                //dbData.FSsummary = results.rows.item(0).FSsummary==null?"0":results.rows.item(0).FSsummary;
+                dbData.lastSyncDate = results.rows.item(0).lastSyncDate==null?"1900-1-1-00-00":results.rows.item(0).lastSyncDate;
             }
         }, errorCB);
 
@@ -691,7 +733,7 @@ db.pieDataGetCount = function(sh,shName,success_callback)
                 if(pieData.length>0)
                 {
                     //success_callback();
-                    db.FSsummaryGet(success_callback);
+                    db.metaGet(success_callback);
                 } else
                     alert("No data to show");
             }

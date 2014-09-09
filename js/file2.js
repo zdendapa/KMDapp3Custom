@@ -10,7 +10,8 @@ var xmlString = "";
 var manualySave = false;
 var fe;
 var dbData = {
-    FSsummary : ""
+    FSsummary : "",
+    lastSyncDate : "1900-1-1-00-00"
 };
 
 function fileInit()
@@ -218,7 +219,8 @@ function readFile(fileEntry)
             db.importCode(xml);
             db.importSheets(xml);
             db.importHowPaid(xml);
-            db.FSsummaryImport(xml);
+            //db.FSsummaryImport(xml);
+            db.importLastSyncDate(xml);
 
 
         };
@@ -286,7 +288,7 @@ function gotFileWriter(writer) {
 
 function dataFromDBget(success_callback)
 {
-    db.FSsummaryGet(success_callback);
+    db.metaGet(success_callback);
 }
 
 function generateXML(writeIt)
@@ -370,7 +372,8 @@ function generateXML(writeIt)
 
                 xmlString += "<meta>";
 
-                xmlString += "<FSsummary>"+dbData.FSsummary+"</FSsummary>";
+                //xmlString += "<FSsummary>"+dbData.FSsummary+"</FSsummary>";
+                xmlString += "<lastSyncDate>"+dbData.lastSyncDate+"</lastSyncDate>";
 
                 // ---------------------------- category drop-down list
                     xmlString += "<category>";
@@ -406,10 +409,10 @@ function generateXML(writeIt)
                 //xmlString += defaultCodeOptionsHtml;
                 $("#code option").each(function()
                 {
-                    var encoded = Encoder.htmlEncode($(this).val());
+                    var encoded = Encoder.htmlEncode($(this).text());
                     //console.log(encoded);
                     //xmlString += "<option>"+$(this).val()+"</option>";
-                    xmlString += "<option>"+encoded+"</option>";
+                    xmlString += '<option value="'+$(this).val()+'">'+encoded+'</option>';
                 });
 
 
@@ -436,6 +439,7 @@ function generateXML(writeIt)
                     xmlString += "<row>";
                     xmlString += "<rowID>"+results.rows.item(i).rowid+"</rowID><date>"+results.rows.item(i).dater+"</date><paid>"+results.rows.item(i).paid+"</paid><desc>"+xmlSpecCharEn(results.rows.item(i).desc)+"</desc><ref>"+xmlSpecCharEn(results.rows.item(i).checkRef)+"</ref>"
                     xmlString += "<payment>"+results.rows.item(i).payment+"</payment><available>"+results.rows.item(i).balance+"</available>";
+                    xmlString += "<synced>"+results.rows.item(i).synced+"</synced>";
                     xmlString += "</row>";
                 }
                 xmlString += "</tableData></sheet>";

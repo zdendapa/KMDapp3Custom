@@ -23,7 +23,9 @@ input[type=date]::-webkit-inner-spin-button {
     display: none;
 }
 
-
+.colorDisabled input{
+    background: #f5f5f5;
+}
 
 /* top menu */
 .topMenu {
@@ -842,6 +844,12 @@ div.instructions {
     .pie {
         width: 25px;
     }
+    .pieWrapper {
+        font-size: 25px;
+    }
+    .piePage h1,.piePage .pieDelete {
+        font-size: 1.5em;
+    }
     .mainHeader div.right {
         width: 50%;
         margin-top: 15px;
@@ -911,6 +919,12 @@ div.instructions {
     }
     .pie {
         width: 45px;
+    }
+    .pieWrapper {
+        font-size: 30px;
+    }
+    .piePage h1,.piePage .pieDelete {
+        font-size: 2em;
     }
     .mainHeader div.right {
         width: 50%;
@@ -1010,7 +1024,7 @@ div.instructions {
     .pieWrapper {
         font-size: 40px;
     }
-    .piePage h1 {
+    .piePage h1,.piePage .pieDelete {
         font-size: 3em;
     }
     .mainHeader div.right {
