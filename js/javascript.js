@@ -496,25 +496,40 @@ function howPaidCheck(el)
     // check if you edit last 4digits (if 3 from start are same)
     // compare it with selected value
 
-    var inputPrefix = el.value.substr(0,el.value.indexOf("#"));
-    var selectPrefix = $(el).next().val().toString().substr(0,$(el).next().val().toString().indexOf("#"));
+    var inputPrefix = el.value.substr(0,el.value.indexOf("#")+1);
+    var selectPrefix = $(el).next().val().toString().substr(0,$(el).next().val().toString().indexOf("#")+1);
 
+    // canot edit CASH
     if($(el).next().val().toString() == "CASH")
     {
-        alert("CASH canot be edited")
+        alert("CASH canot be edited");
         el.value = "CASH";
         return;
     }
+
+    // at least some digits after # must be!
+    console.log("e"+el.value.length+el.value);
+    console.log("e"+inputPrefix.length + inputPrefix);
+    if(el.value.length==inputPrefix.length)
+    {
+        alert("Please provide at least one digits");
+        el.value = $(el).next().val();
+        return;
+    }
+
+
 
     if(inputPrefix!=selectPrefix)
     {
         alert("Prefix canot be changed");
         el.value = $(el).next().val();
+
     } else
     if(el.value.length > 7)
     {
         alert("Code canot be larged");
         el.value = $(el).next().val();
+
     } else
     {
         // update input value in db
@@ -570,7 +585,6 @@ function addRow()
 {
     logging("addRow",1);
     lastRowID ++;
-    console.log(defaultHowPaidOptionsHtml);
     $("ul.content").append('<li data-id="'+lastRowID+'"> <span class="dater"><input onchange="dateFormatCheck(this)" onfocus="dateFormatIn(this)"></span><span class="description"><input></span><span class="paid"><input><select>'+defaultHowPaidOptionsHtml+'</select></span><span class="checkRef"><input></span> <span class="payment"><input></span> <span class="last"><input readonly></span> </li>');
 
     // set how Paid input
@@ -814,8 +828,21 @@ function logging(str, level) {
     }
 };
 
+function StringtoXML(text)
+{
+    var xmlDoc;
+    try {
+        var xmlDoc = jQuery.parseXML(text);
 
-function StringtoXML(text){
+    } catch(e) {
+        logging("Invalid import xml!",3);
+    }
+
+    return xmlDoc;
+
+}
+
+function StringtoXML_old(text){
     if (window.ActiveXObject){
         var doc=new ActiveXObject('Microsoft.XMLDOM');
         doc.async='false';
@@ -824,6 +851,7 @@ function StringtoXML(text){
         var parser=new DOMParser();
         var doc=parser.parseFromString(text,'text/xml');
     }
+
     return doc;
 }
 

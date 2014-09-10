@@ -20,7 +20,7 @@ var lastSyncDate;   // date of last sync
 
 var db = {
     settings: {
-        shortName: 'kmd_e',
+        shortName: 'kmd_f',
         version: '1.0',
         displayName: 'KMD app',
         maxSize: 655367 // in bytes
@@ -84,7 +84,9 @@ db.createTables = function()
 
                     database.transaction(function(tx)
                     {
-                        tx.executeSql('INSERT INTO meta (openedSheet, lastExport,lastSyncDate) VALUES (0,"","")');
+                        var dt = new Date();
+                        var dtStr = String(dt.getFullYear()) + "-" + String(dt.getMonth()+1) + "-" + dt.getDate() + "-" + dt.getHours() + "-" + dt.getMinutes();
+                        tx.executeSql('INSERT INTO meta (openedSheet, lastExport,lastSyncDate) VALUES (0,"","'+dtStr+'")');
                     }, errorCB);
 
                 }
@@ -294,8 +296,12 @@ db.loadSheet = function()
             {
 
                 $("#category").val(results.rows.item(0).category);
-                //$("#code option:selected" ).text(results.rows.item(0).code);
-                $("#code").val(results.rows.item(0).code);
+
+
+                $('#code option')
+                    .filter(function() { return $.trim( $(this).text() ) == results.rows.item(0).code; })
+                    .attr('selected',true);
+
                 $("#planSpend").val(results.rows.item(0).planSpend);
             }
 
@@ -534,7 +540,7 @@ db.importSheets = function(xml,success_callback)
                 //tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+sheet.getElementsByTagName("category")[0].firstChild.nodeValue+','+Encoder.htmlDecode(sheet.getElementsByTagName("code")[0].firstChild.nodeValue)+', '+sheet.getElementsByTagName("planSpend")[0].firstChild.nodeValue+')');
                 //tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+getXmlNodeValue(sheet,"category")+','+getXmlNodeValue(sheet,"code")+', '+getXmlNodeValue(sheet,"planSpend")+')');
                 tx.executeSql('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES (?,?,?,?)', [sheet.getElementsByTagName("shid")[0].firstChild.nodeValue,getXmlNodeValue(sheet,"category"),getXmlNodeValue(sheet,"code"),getXmlNodeValue(sheet,"planSpend")]);
-                  console.log('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+getXmlNodeValue(sheet,"category")+','+getXmlNodeValue(sheet,"code")+', '+getXmlNodeValue(sheet,"planSpend")+')');
+                  //console.log('INSERT INTO sheetsheaders (shid, category, code, planSpend) VALUES ('+sheet.getElementsByTagName("shid")[0].firstChild.nodeValue+','+getXmlNodeValue(sheet,"category")+','+getXmlNodeValue(sheet,"code")+', '+getXmlNodeValue(sheet,"planSpend")+')');
 
                 var rows =  sheet.getElementsByTagName("row");
                 console.log(rows.length);
@@ -632,7 +638,7 @@ db.importCode = function(xml,success_callback)
 
                 var option = codeOptions[i];
 
-                console.log("opt:" + option.attributes[0].nodeValue);
+                //console.log("opt:" + option.attributes[0].nodeValue);
                 //var str = '<option value="'+option.attributes[0].nodeValue+'">'+option.firstChild.nodeValue+'</option>';
                 var str = option.firstChild.nodeValue;
                 var strVal = option.attributes[0].nodeValue;
@@ -666,7 +672,9 @@ db.metaGet = function(success_callback)
             if(results.rows.length > 0)
             {
                 //dbData.FSsummary = results.rows.item(0).FSsummary==null?"0":results.rows.item(0).FSsummary;
-                dbData.lastSyncDate = results.rows.item(0).lastSyncDate==null?"1900-1-1-00-00":results.rows.item(0).lastSyncDate;
+                var dt = new Date();
+                var dtStr = String(dt.getFullYear()) + "-" + String(dt.getMonth()+1) + "-" + dt.getDate() + "-" + dt.getHours() + "-" + dt.getMinutes();
+                dbData.lastSyncDate = results.rows.item(0).lastSyncDate==null?dtStr:results.rows.item(0).lastSyncDate;
             }
         }, errorCB);
 

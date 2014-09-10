@@ -43,7 +43,16 @@ function initFs() {
 
 function gotFileSystem(lfs) {
     fs = lfs;
-    fs.root.getDirectory('kmd', {create: true, exclusive: false}, gotDirectory, onError);
+    var path;
+    // if android made special path
+    if (!workLocal && device && device.platform && device.platform.indexOf('Android') == 0) {
+        path = "Android/data/cz.initedsolutions.kmdTMM/files";
+    } else
+    {
+        path = "kmd";
+    }
+
+    fs.root.getDirectory(path, {create: true, exclusive: false}, gotDirectory, onError);
 }
 function gotDirectory(ldir) {
     dir = ldir;
@@ -199,7 +208,10 @@ function readFile(fileEntry)
 
         reader.onloadend = function(e) {
             var xml = StringtoXML(this.result);
-
+            if(xml == null)
+            {
+                return;
+            }
             // ---- read code drop-down list
 
 
