@@ -34,6 +34,8 @@
     - export file path changed for android to:Android/data/cz.initedsolutions.kmdTMM/files
     0.5c
     - dont export automaticly
+    0.5d
+    - UIFileSharingEnabled
 
 
 
@@ -65,6 +67,10 @@
 
     <gap:config-file platform="ios" parent="UIViewControllerBasedStatusBarAppearance">
         <false/>
+    </gap:config-file>
+
+    <gap:config-file platform="ios" parent="UIFileSharingEnabled">
+        <true/>
     </gap:config-file>
     <!--
         If you do not want any permissions to be added to your app, add the
