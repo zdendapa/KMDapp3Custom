@@ -668,7 +668,8 @@ function buttonSave()
 {
     //alert("I will preform save");
     manualySave= true;
-    generateXML("write");
+    xmlExportAndSave();
+
 }
 
 function shidCurrentGet()

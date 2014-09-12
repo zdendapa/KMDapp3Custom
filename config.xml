@@ -4,7 +4,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "cz.initedsolutions.kmdTMM"
-        version   = "0.5b">
+        version   = "0.5c">
     <!--
     0.2
     - import updated
@@ -32,6 +32,8 @@
     - fixed lastSyncDate
     - how paid validation new rule: at least one digits after prefix
     - export file path changed for android to:Android/data/cz.initedsolutions.kmdTMM/files
+    0.5c
+    - dont export automaticly
 
 
 

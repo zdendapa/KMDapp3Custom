@@ -20,7 +20,7 @@ var lastSyncDate;   // date of last sync
 
 var db = {
     settings: {
-        shortName: 'kmd_f',
+        shortName: 'kmd_g',
         version: '1.0',
         displayName: 'KMD app',
         maxSize: 655367 // in bytes

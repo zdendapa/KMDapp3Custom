@@ -76,6 +76,7 @@ function workOn(dir,type) {
             f.file(function(file){
                 modificationDate = new Date(file.lastModifiedDate);
                 db.readLastExport(importExport);
+
             },function(){});
 
         },noFile);
@@ -138,11 +139,13 @@ var importExport = function()
 
     if(lastExportDate==d_modificationDate || lastExportDate == "")
     {
-        logging("Dates are same (or lastExportDate is empty), start to export data", 1);
+        if(exportAutomatic)
+        {
+            logging("Dates are same (or lastExportDate is empty), start to export data", 1);
 
-        dataFromDBget(function(){
-            generateXML("write");
-        });
+            xmlExportAndSave();
+        }
+
 
 
         //workOn(dir,"read");
@@ -154,6 +157,15 @@ var importExport = function()
         workOn(dir,"read");
     }
 
+};
+
+function xmlExportAndSave()
+{
+    dataFromDBget(function(){
+
+        generateXML("write");
+
+    });
 }
 
 
