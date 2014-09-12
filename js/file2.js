@@ -49,7 +49,8 @@ function gotFileSystem(lfs) {
         path = "Android/data/cz.initedsolutions.kmdTMM/files";
     } else
     {
-        path = "kmd";
+        //path = "kmd";
+        path = "";
     }
 
     fs.root.getDirectory(path, {create: true, exclusive: false}, gotDirectory, onError);
