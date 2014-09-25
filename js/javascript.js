@@ -263,6 +263,16 @@ function clickInit()
         if ($(this).is(":focus")) {
             db.readLastSync();
             inputValue = $(this).val();
+
+            if($(this).prop("tagName")=="SELECT")
+            {
+                inputValue = el = $(this).prev().val();
+                console.log("inputValue:"+ inputValue);
+            } else
+            {
+                inputValue = $(this).val();
+            }
+
         }
     });
 
@@ -466,6 +476,7 @@ function dateFormatIn(el)
         mode: 'date'
     };
 
+    inputValue = $(el).val();
     el.blur();
     datePicker.show(options, function(date){
         if(date)
@@ -682,6 +693,19 @@ function dbUpdater2(el)
     var run = true;
     if(!lastSyncOK())
     {
+
+        // if restore input "paid" then restore select too
+        if($(el).closest('span').hasClass("paid"))
+        {
+            if($(el).prop("tagName")=="INPUT")
+            {
+                var elSelect = $(el).next();
+                $(elSelect).find("option")
+                    .filter(function() { return $.trim( $(this).text() ) == inputValue })
+                    .attr('selected',true);
+            }
+        }
+
         $(el).val(inputValue);
         run = false;
     } else

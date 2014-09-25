@@ -4,7 +4,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "cz.initedsolutions.kmdTMM"
-        version   = "0.5c">
+        version   = "0.5e">
     <!--
     0.2
     - import updated
@@ -34,8 +34,10 @@
     - export file path changed for android to:Android/data/cz.initedsolutions.kmdTMM/files
     0.5c
     - dont export automaticly
-    0.5d
+    0.5e
     - UIFileSharingEnabled
+    - pieChart - improved table, set z-index to be rendered over chart always (when pie is bgger then expected)
+    - 30days workaround that returns value back - improved paid select and date
 
 
 

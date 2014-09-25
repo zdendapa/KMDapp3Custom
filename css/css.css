@@ -516,6 +516,12 @@ div.instructions {
 #chartdiv {
     margin: auto;
 }
+#chartdivTable {
+    z-index: 110;
+    position: absolute;
+    width: 100%;
+    background: white;
+}
 #chartdivTable table {
     width: 100%;
     margin: auto;
